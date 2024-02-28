@@ -4,7 +4,7 @@ pipeline {
     environment {
         // Thiết lập các biến môi trường nếu cần
         DOCKER_IMAGE_NAME = 'docker-rest-api'
-        GITHUB_REPO_URL = 'https://github.com/hiuhuyn/test-docker-jenkin.git'
+        GITHUB_REPO_URL = 'https://github.com/hiuhuyn/test-jenkins-github.git'
         DOCKER_USER_NAME = 'hiuhuyn'
     }
 
