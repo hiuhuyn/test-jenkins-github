@@ -29,8 +29,8 @@ pipeline {
                 dir('DevopsNodej1') {      // go to directory where 'Dockerfile' is stored
                     script {
                       def JOB = env.JOB_NAME.toLowerCase()           // Convert Jenkins Job name to lower-case
-                      sh "docker build -t ${JOB}:${BUILD_NUMBER} ."  // 'JOB_NAME' & 'BUILD_NUMBER' are Jenkins Global variable
-                      sh"docker run -p 3000:3000 ${JOB}:${BUILD_NUMBER}"
+                      sh "docker build -t ${DOCKER_IMAGE_NAME}:${BUILD_NUMBER} ."  // 'JOB_NAME' & 'BUILD_NUMBER' are Jenkins Global variable
+                      sh"docker run -p 3000:3000 ${DOCKER_IMAGE_NAME}:${BUILD_NUMBER}"
                     }
                 }
             }
@@ -41,8 +41,8 @@ pipeline {
                 dir('DevopsNodej1') {      // go to directory where Docker Image is created
                   script {
                     def JOB = env.JOB_NAME.toLowerCase() // Convert Jenkins Job name to lower-case
-                    sh "docker tag ${JOB}:${BUILD_NUMBER} ${DOCKER_USERNAME}/${JOB}:v${BUILD_NUMBER}"
-                    sh "docker tag ${JOB}:${BUILD_NUMBER} ${DOCKER_USERNAME}/${JOB}:latest"
+                    sh "docker tag ${DOCKER_IMAGE_NAME}:${BUILD_NUMBER} ${DOCKER_USERNAME}/${JOB}:v${BUILD_NUMBER}"
+                    sh "docker tag ${DOCKER_IMAGE_NAME}:${BUILD_NUMBER} ${DOCKER_USERNAME}/${JOB}:latest"
                   }
                 }
             } 
@@ -54,8 +54,8 @@ pipeline {
                   withCredentials([usernamePassword(credentialsId: 'my-docker-hub', usernameVariable: 'docker_user', passwordVariable: 'docker_pass')]) {
                     sh "docker login -u '${docker_user}' -p '${docker_pass}'"
                     def JOB = env.JOB_NAME.toLowerCase() // Convert Jenkins Job name to lower-case
-                    sh "docker push ${DOCKER_USERNAME}/${JOB}:v${BUILD_NUMBER}"
-                    sh "docker push ${DOCKER_USERNAME}/${JOB}:latest"
+                    sh "docker push ${DOCKER_USERNAME}/${DOCKER_IMAGE_NAME}:v${BUILD_NUMBER}"
+                    sh "docker push ${DOCKER_USERNAME}/${DOCKER_IMAGE_NAME}:latest"
                   }
                 }
             }
