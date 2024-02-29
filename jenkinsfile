@@ -59,7 +59,7 @@ pipeline {
             // Remove the unwanted (dangling) images created in Jenkins Server to free-up space
             steps{
                 script { 
-                  sh "docker push ${DOCKER_USERNAME}/${DOCKER_IMAGE_NAME}:${BUILD_NUMBER}"
+                  sh "docker push ${DOCKER_USER_NAME}/${DOCKER_IMAGE_NAME}:${BUILD_NUMBER}"
                 }
             }
         }
