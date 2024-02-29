@@ -8,13 +8,13 @@ pipeline {
     }
 
     stages {
-        stage("1. Cleanup") {
+        stage("Cleanup") {
             // Clean workspace directory for the current build
             steps {
                 deleteDir ()             
             }
         }
-        stage ('2. Git Checkout') {
+        stage ('Git Checkout') {
             steps {
                 dir ("DevopsNodej1"){
                   script {
@@ -24,43 +24,43 @@ pipeline {
             }
         }   
 
-        stage('3. Docker Image Build') {
+        stage('Docker Image Build') {
             // Build Docker Image 
             steps{
                 script{
                     dir('DevopsNodej1') {      // go to directory where 'Dockerfile' is stored
                     script {
                       sh "docker build -t ${DOCKER_IMAGE_NAME}:${BUILD_NUMBER} ." 
+                      catchError(message: 'ErrorBuildingDockerfile') {
+                        echo(ErrorBuildingDockerfile)
+                      }
                     }
                 }
                 }
             }
         }
-        stage('4. Docker Image Tag') {
+        stage('Docker Image Tag') {
             // Rename the Docker Image before pushing to Dockerhub
             steps{
                 dir('DevopsNodej1') {      // go to directory where Docker Image is created
                   script {
                     sh "docker tag ${DOCKER_IMAGE_NAME}:${BUILD_NUMBER} ${DOCKER_USERNAME}/${DOCKER_IMAGE_NAME}:${BUILD_NUMBER}"
-                    sh "docker tag ${DOCKER_IMAGE_NAME}:${BUILD_NUMBER} ${DOCKER_USERNAME}/${DOCKER_IMAGE_NAME}:latest"
                   }
                 }
             } 
         }
-        stage('5. Docker Image Push') {
+        stage('Docker Image Push') {
             // Login to Dockerhub & Push the image to Dockerhub
             steps{
                 script { 
                   withCredentials([usernamePassword(credentialsId: 'my-docker-hub', usernameVariable: 'docker_user', passwordVariable: 'docker_pass')]) {
                     sh "docker login -u '${docker_user}' -p '${docker_pass}'"
-                    def JOB = env.JOB_NAME.toLowerCase() // Convert Jenkins Job name to lower-case
                     sh "docker push ${DOCKER_USERNAME}/${DOCKER_IMAGE_NAME}:${BUILD_NUMBER}"
-                    sh "docker push ${DOCKER_USERNAME}/${DOCKER_IMAGE_NAME}:latest"
                   }
                 }
             }
         }
-        stage('6. Docker Image Cleanup') {
+        stage('Docker Image Cleanup') {
             // Remove the unwanted (dangling) images created in Jenkins Server to free-up space
             steps{
                 script { 
