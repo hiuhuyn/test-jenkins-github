@@ -30,45 +30,44 @@ pipeline {
                 script{
                     dir('DevopsNodej1') {      // go to directory where 'Dockerfile' is stored
                     script {
-                      sh "docker build -t ${DOCKER_IMAGE_NAME}:${BUILD_NUMBER} ."  // 'JOB_NAME' & 'BUILD_NUMBER' are Jenkins Global variable
-                      sh"docker run -p 3000:3000 ${DOCKER_IMAGE_NAME}:${BUILD_NUMBER}"
+                      sh "docker build -t ${DOCKER_IMAGE_NAME}:${BUILD_NUMBER} ." 
                     }
                 }
                 }
             }
         }
-        // stage('4. Docker Image Tag') {
-        //     // Rename the Docker Image before pushing to Dockerhub
-        //     steps{
-        //         dir('DevopsNodej1') {      // go to directory where Docker Image is created
-        //           script {
-        //             sh "sudo docker tag ${DOCKER_IMAGE_NAME}:${BUILD_NUMBER} ${DOCKER_USERNAME}/${DOCKER_IMAGE_NAME}:${BUILD_NUMBER}"
-        //             //sh "sudo docker tag ${DOCKER_IMAGE_NAME}:${BUILD_NUMBER} ${DOCKER_USERNAME}/${DOCKER_IMAGE_NAME}:latest"
-        //           }
-        //         }
-        //     } 
-        // }
-        // stage('5. Docker Image Push') {
-        //     // Login to Dockerhub & Push the image to Dockerhub
-        //     steps{
-        //         script { 
-        //           withCredentials([usernamePassword(credentialsId: 'my-docker-hub', usernameVariable: 'docker_user', passwordVariable: 'docker_pass')]) {
-        //             sh "sudo docker login -u '${docker_user}' -p '${docker_pass}'"
-        //             def JOB = env.JOB_NAME.toLowerCase() // Convert Jenkins Job name to lower-case
-        //             sh "sudo docker push ${DOCKER_USERNAME}/${DOCKER_IMAGE_NAME}:${BUILD_NUMBER}"
-        //             sh "sudo docker push ${DOCKER_USERNAME}/${DOCKER_IMAGE_NAME}:latest"
-        //           }
-        //         }
-        //     }
-        // }
-        // stage('6. Docker Image Cleanup') {
-        //     // Remove the unwanted (dangling) images created in Jenkins Server to free-up space
-        //     steps{
-        //         script { 
-        //           sh "sudo docker image prune -af"
-        //         }
-        //     }
-        // }
+        stage('4. Docker Image Tag') {
+            // Rename the Docker Image before pushing to Dockerhub
+            steps{
+                dir('DevopsNodej1') {      // go to directory where Docker Image is created
+                  script {
+                    sh "docker tag ${DOCKER_IMAGE_NAME}:${BUILD_NUMBER} ${DOCKER_USERNAME}/${DOCKER_IMAGE_NAME}:${BUILD_NUMBER}"
+                    sh "docker tag ${DOCKER_IMAGE_NAME}:${BUILD_NUMBER} ${DOCKER_USERNAME}/${DOCKER_IMAGE_NAME}:latest"
+                  }
+                }
+            } 
+        }
+        stage('5. Docker Image Push') {
+            // Login to Dockerhub & Push the image to Dockerhub
+            steps{
+                script { 
+                  withCredentials([usernamePassword(credentialsId: 'my-docker-hub', usernameVariable: 'docker_user', passwordVariable: 'docker_pass')]) {
+                    sh "docker login -u '${docker_user}' -p '${docker_pass}'"
+                    def JOB = env.JOB_NAME.toLowerCase() // Convert Jenkins Job name to lower-case
+                    sh "docker push ${DOCKER_USERNAME}/${DOCKER_IMAGE_NAME}:${BUILD_NUMBER}"
+                    sh "docker push ${DOCKER_USERNAME}/${DOCKER_IMAGE_NAME}:latest"
+                  }
+                }
+            }
+        }
+        stage('6. Docker Image Cleanup') {
+            // Remove the unwanted (dangling) images created in Jenkins Server to free-up space
+            steps{
+                script { 
+                  sh "docker image prune -af"
+                }
+            }
+        }
     }
     
     post {
