@@ -23,17 +23,32 @@ pipeline {
                 }
             }
         }   
-        stage('3. Docker Image Build') {
-            // Build Docker Image 
-            steps{
-                dir('DevopsNodej1') {      // go to directory where 'Dockerfile' is stored
-                    script {
-                      sh "sudo docker build -t ${DOCKER_IMAGE_NAME}:${BUILD_NUMBER} ."  // 'JOB_NAME' & 'BUILD_NUMBER' are Jenkins Global variable
-                      sh"sudo docker run -p 3000:3000 ${DOCKER_IMAGE_NAME}:${BUILD_NUMBER}"
-                    }
+        stage('Build Image') {
+            steps {
+                script {
+                    dockerImage = docker.build("${DOCKER_IMAGE_NAME}:${BUILD_NUMBER} ")
                 }
             }
         }
+
+        stage('Run Container') {
+            steps {
+                script {
+                    dockerImage.run("-p 3000:3000 -d --name ${DOCKER_IMAGE_NAME}")
+                }
+            }
+        }
+        // stage('3. Docker Image Build') {
+        //     // Build Docker Image 
+        //     steps{
+        //         dir('DevopsNodej1') {      // go to directory where 'Dockerfile' is stored
+        //             script {
+        //               sh "sudo docker build -t ${DOCKER_IMAGE_NAME}:${BUILD_NUMBER} ."  // 'JOB_NAME' & 'BUILD_NUMBER' are Jenkins Global variable
+        //               sh"sudo docker run -p 3000:3000 ${DOCKER_IMAGE_NAME}:${BUILD_NUMBER}"
+        //             }
+        //         }
+        //     }
+        // }
         // stage('4. Docker Image Tag') {
         //     // Rename the Docker Image before pushing to Dockerhub
         //     steps{
