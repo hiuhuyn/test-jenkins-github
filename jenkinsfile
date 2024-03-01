@@ -11,9 +11,9 @@ pipeline {
         stage("Cleanup") {
             // Clean workspace directory for the current build
             steps {
-                deleteDir ()       
-                sh 'docker rm $(docker ps -aq)'     
-                sh 'docker rmi $(docker images -q)'
+                deleteDir ()
+                // sh 'docker rm $(docker ps -aq)'
+                // sh 'docker rmi $(docker images -q)'
             }
         }
         stage ('Git Checkout') {
@@ -38,6 +38,15 @@ pipeline {
                         }
                         sh "docker push ${DOCKER_USER_NAME}/${DOCKER_IMAGE_NAME}:${BUILD_NUMBER}"
                         sh "docker image prune -af"
+                    }
+                }
+            }
+        }
+        stage('Deploy'){
+            steps{
+                dir('DevopsNodej1') {      // go to directory where 'Dockerfile' is stored
+                    script {
+                        sh "docker run -dp 3000:3000 ${DOCKER_IMAGE_NAME}:${BUILD_NUMBER} ."
                     }
                 }
             }
