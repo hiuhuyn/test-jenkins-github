@@ -12,19 +12,17 @@ pipeline {
             // Clean workspace directory for the current build
             steps {
                 deleteDir ()
-                  script {
-                // Lấy ID của tất cả các container đang chạy
+                script {
+                    // Lấy ID của tất cả các container đang chạy
                     def runningContainers = sh(script: 'docker ps -q', returnStdout: true).trim()
 
                     // Kiểm tra xem có container nào đang chạy không
                     if (runningContainers) {
                         // Dừng tất cả các container đang chạy
-                        sh "docker stop $runningContainers"
-                        
+                        sh "docker stop $runningContainers"                        
                     } else {
                         echo "Không có container đang chạy."
                     }
-
                     // Xóa tất cả container (bao gồm cả những container đã dừng)
                     sh 'docker rm $(docker ps -a -q)'
                   }
@@ -51,6 +49,7 @@ pipeline {
                             sh "docker login -u '${docker_user}' -p '${docker_pass}'"
                         }
                         sh "docker push ${DOCKER_USER_NAME}/${DOCKER_IMAGE_NAME}:${BUILD_NUMBER}"
+                        
                         sh "docker image prune -af"
                     }
                 }
@@ -58,23 +57,10 @@ pipeline {
         }
         stage('Deploy'){
             steps{
-                dir('DevopsNodej1') {      // go to directory where 'Dockerfile' is stored
-                    script {
-                        sh "docker run -dp 3000:3000 ${DOCKER_USER_NAME}/${DOCKER_IMAGE_NAME}:${BUILD_NUMBER} ."
-                    }
+                script {
+                    sh "docker run -p 3000:3000 ${DOCKER_USER_NAME}/${DOCKER_IMAGE_NAME}:${BUILD_NUMBER} ."
                 }
             }
-        }
-    }
-    
-    post {
-        success {
-            // Các bước sau khi build thành công
-            echo 'Build and push Docker image successfully.'
-        }
-        failure {
-            // Các bước sau khi build thất bại
-            echo 'Build and push Docker image failed.'
         }
     }
 }
