@@ -14,6 +14,15 @@ pipeline {
                 deleteDir ()
                 // sh 'docker rm $(docker ps -aq)'
                 // sh 'docker rmi $(docker images -q)'
+                // sh 'docker stop $(docker ps -q) && docker rm $(docker ps -a -q)'
+                script{
+                    CONTAINER_ID=$(docker ps -q)
+                    if [ -n "$CONTAINER_ID" ]; then
+                        docker stop $(docker ps -a -q)
+                    else
+                        echo "Không có container đang chạy."
+                    fi
+                }
             }
         }
         stage ('Git Checkout') {
@@ -46,7 +55,7 @@ pipeline {
             steps{
                 dir('DevopsNodej1') {      // go to directory where 'Dockerfile' is stored
                     script {
-                        sh "docker run -dp 3000:3000 ${DOCKER_IMAGE_NAME}:${BUILD_NUMBER} ."
+                        sh "docker run -dp 3000:3000 ${DOCKER_USER_NAME}/${DOCKER_IMAGE_NAME}:${BUILD_NUMBER} ."
                     }
                 }
             }
