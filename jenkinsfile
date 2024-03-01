@@ -29,45 +29,14 @@ pipeline {
             steps{
                 dir('DevopsNodej1') {      // go to directory where 'Dockerfile' is stored
                     script {
-                      sh "docker build -t ${DOCKER_IMAGE_NAME}:${BUILD_NUMBER} ." 
-                      
+                        sh "docker build -t ${DOCKER_IMAGE_NAME}:${BUILD_NUMBER} ." 
+                        sh "docker tag ${DOCKER_IMAGE_NAME}:${BUILD_NUMBER} ${DOCKER_USER_NAME}/${DOCKER_IMAGE_NAME}:${BUILD_NUMBER}"
+                        withCredentials([usernamePassword(credentialsId: 'my-docker-hub', usernameVariable: 'docker_user', passwordVariable: 'docker_pass')]) {
+                            sh "docker login -u '${docker_user}' -p '${docker_pass}'"
+                        }
+                        sh "docker push ${DOCKER_USER_NAME}/${DOCKER_IMAGE_NAME}:${BUILD_NUMBER}"
+                        sh "docker image prune -af"
                     }
-                }
-            }
-        }
-        stage('Docker Image Tag') {
-            // Rename the Docker Image before pushing to Dockerhub
-            steps{
-                dir('DevopsNodej1') {      // go to directory where Docker Image is created
-                  script {
-                    sh "docker tag ${DOCKER_IMAGE_NAME}:${BUILD_NUMBER} ${DOCKER_USER_NAME}/${DOCKER_IMAGE_NAME}:${BUILD_NUMBER}"
-                  }
-                }
-            } 
-        }
-        stage('Docker login') {
-            // Login to Dockerhub & Push the image to Dockerhub
-            steps{
-                script { 
-                  withCredentials([usernamePassword(credentialsId: 'my-docker-hub', usernameVariable: 'docker_user', passwordVariable: 'docker_pass')]) {
-                    sh "docker login -u '${docker_user}' -p '${docker_pass}'"
-                  }
-                }
-            }
-        }
-        stage('Docker Image Push') {
-            // Remove the unwanted (dangling) images created in Jenkins Server to free-up space
-            steps{
-                script { 
-                  sh "docker push ${DOCKER_USER_NAME}/${DOCKER_IMAGE_NAME}:${BUILD_NUMBER}"
-                }
-            }
-        }
-        stage('Docker Image Cleanup') {
-            // Remove the unwanted (dangling) images created in Jenkins Server to free-up space
-            steps{
-                script { 
-                  sh "docker image prune -af"
                 }
             }
         }
