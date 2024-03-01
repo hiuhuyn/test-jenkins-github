@@ -60,6 +60,7 @@ pipeline {
         }
         stage('Deploy'){
             steps{
+                sh "chmod +x /usr/local/bin/docker-entrypoint.sh"
                 sh "docker run -p 3000:3000 ${DOCKER_USER_NAME}/${DOCKER_IMAGE_NAME} ."
             }
         }

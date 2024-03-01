@@ -13,6 +13,4 @@ RUN npm install
 
 COPY . .
 
-RUN ["chmod", "+x", "/usr/local/bin/docker-entrypoint.sh"]
-
 CMD [ "node", "server.js" ]
