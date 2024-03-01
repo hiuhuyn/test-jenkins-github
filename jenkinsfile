@@ -6,7 +6,7 @@ pipeline {
         GITHUB_REPO_URL = 'https://github.com/hiuhuyn/test-jenkins-github.git'
         DOCKER_USER_NAME = 'hiuhuyn'
     }
-
+ 
     stages {
         stage("Cleanup") {
             // Clean workspace directory for the current build
