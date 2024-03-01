@@ -5,6 +5,7 @@ pipeline {
         DOCKER_IMAGE_NAME = 'docker-rest-api'
         GITHUB_REPO_URL = 'https://github.com/hiuhuyn/test-jenkins-github.git'
         DOCKER_USER_NAME = 'hiuhuyn'
+        VERSION_NUMBER = '1.0.${BUILD_NUMBER}'
     }
 
     stages {
@@ -46,12 +47,12 @@ pipeline {
             steps{
                 dir('DevopsNodej1') {      // go to directory where 'Dockerfile' is stored
                     script {
-                        sh "docker build -t ${DOCKER_IMAGE_NAME}:${BUILD_NUMBER} ." 
-                        sh "docker tag ${DOCKER_IMAGE_NAME}:${BUILD_NUMBER} ${DOCKER_USER_NAME}/${DOCKER_IMAGE_NAME}:${BUILD_NUMBER}"
+                        sh "docker build -t ${DOCKER_IMAGE_NAME}:${VERSION_NUMBER} ." 
+                        sh "docker tag ${DOCKER_IMAGE_NAME}:${VERSION_NUMBER} ${DOCKER_USER_NAME}/${DOCKER_IMAGE_NAME}:${VERSION_NUMBER}"
                         withCredentials([usernamePassword(credentialsId: 'my-docker-hub', usernameVariable: 'docker_user', passwordVariable: 'docker_pass')]) {
                             sh "docker login -u '${docker_user}' -p '${docker_pass}'"
                         }
-                        sh "docker push ${DOCKER_USER_NAME}/${DOCKER_IMAGE_NAME}:${BUILD_NUMBER}"
+                        sh "docker push ${DOCKER_USER_NAME}/${DOCKER_IMAGE_NAME}:${VERSION_NUMBER}"
 
                         sh "docker image prune -af"
                     }
@@ -60,7 +61,6 @@ pipeline {
         }
         stage('Deploy'){
             steps{
-                sh "chmod +x /usr/local/bin/docker-entrypoint.sh"
                 sh "docker run -p 3000:3000 ${DOCKER_USER_NAME}/${DOCKER_IMAGE_NAME} ."
             }
         }
