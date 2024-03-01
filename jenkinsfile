@@ -18,13 +18,16 @@ pipeline {
                     // Kiểm tra xem có container nào đang chạy không
                     if (runningContainers) {
                         // Dừng tất cả các container đang chạy
-                        sh "docker stop $runningContainers"
-                        echo "Tắt container $runningContainers"                     
+                        sh "docker stop $runningContainers"             
                     } else {
                         echo "Không có container đang chạy."
                     }
-                    // Xóa tất cả container (bao gồm cả những container đã dừng)
-                    sh 'docker rm $(docker ps -a -q)'
+                    def container = sh(script: 'docker ps -a -q', returnStdout: true).trim()
+                    if(container){
+                        sh 'docker rm $(docker ps -a -q)'
+                    }else{
+                        echo "Không có container."
+                    }
                   }
             }
         }
@@ -57,9 +60,7 @@ pipeline {
         }
         stage('Deploy'){
             steps{
-                script {
-                    sh "docker run -p 3000:3000 ${DOCKER_USER_NAME}/${DOCKER_IMAGE_NAME}:${BUILD_NUMBER} ."
-                }
+                sh "docker run -p 3000:3000 ${DOCKER_USER_NAME}/${DOCKER_IMAGE_NAME}:${BUILD_NUMBER} ."
             }
         }
     }
