@@ -6,7 +6,7 @@ pipeline {
         GITHUB_REPO_URL = 'https://github.com/hiuhuyn/test-jenkins-github.git'
         DOCKER_USER_NAME = 'hiuhuyn'
     }
- 
+
     stages {
         stage("Cleanup") {
             // Clean workspace directory for the current build
@@ -15,11 +15,11 @@ pipeline {
                 script {
                     // Lấy ID của tất cả các container đang chạy
                     def runningContainers = sh(script: 'docker ps -q', returnStdout: true).trim()
-
                     // Kiểm tra xem có container nào đang chạy không
                     if (runningContainers) {
                         // Dừng tất cả các container đang chạy
-                        sh "docker stop $runningContainers"                        
+                        sh "docker stop $runningContainers"
+                        echo "Tắt container $runningContainers"                     
                     } else {
                         echo "Không có container đang chạy."
                     }
@@ -49,7 +49,7 @@ pipeline {
                             sh "docker login -u '${docker_user}' -p '${docker_pass}'"
                         }
                         sh "docker push ${DOCKER_USER_NAME}/${DOCKER_IMAGE_NAME}:${BUILD_NUMBER}"
-                        
+
                         sh "docker image prune -af"
                     }
                 }
