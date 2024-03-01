@@ -10,15 +10,11 @@ pipeline {
 
     stages {
         stage("Cleanup") {
-            // Clean workspace directory for the current build
             steps {
                 deleteDir ()
                 script {
-                    // Lấy ID của tất cả các container đang chạy
                     def runningContainers = sh(script: 'docker ps -q', returnStdout: true).trim()
-                    // Kiểm tra xem có container nào đang chạy không
                     if (runningContainers) {
-                        // Dừng tất cả các container đang chạy
                         sh "docker stop $runningContainers"             
                     } else {
                         echo "Không có container đang chạy."
@@ -42,9 +38,8 @@ pipeline {
             }
         }
         stage('Docker Image Build') {
-            // Build Docker Image 
             steps{
-                dir('DevopsNodej1') {      // go to directory where 'Dockerfile' is stored
+                dir('DevopsNodej1') {
                     script {
                         sh "docker build -t ${DOCKER_IMAGE_NAME}:${VERSION_NUMBER} ." 
                         sh "docker tag ${DOCKER_IMAGE_NAME}:${VERSION_NUMBER} ${DOCKER_USER_NAME}/${DOCKER_IMAGE_NAME}:${VERSION_NUMBER}"
@@ -59,9 +54,7 @@ pipeline {
         }
         stage('Deploy'){
             steps{
-                dir('DevopsNodej1'){
-                    sh "docker run -p 3000:3000 ${DOCKER_USER_NAME}/${DOCKER_IMAGE_NAME}:${VERSION_NUMBER} ."
-                }
+                sh "docker run -p 3000:3000 ${DOCKER_USER_NAME}/${DOCKER_IMAGE_NAME}:${VERSION_NUMBER} ."
             }
         }
     }
