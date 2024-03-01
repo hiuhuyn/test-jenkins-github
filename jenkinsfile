@@ -48,7 +48,6 @@ pipeline {
                         }
                         sh "docker push ${DOCKER_USER_NAME}/${DOCKER_IMAGE_NAME}:${VERSION_NUMBER}"
                         sh "docker image prune -af"
-                        sh 'docker rmi -f $(docker images -q)'
                     }
                 }
             }
@@ -56,9 +55,19 @@ pipeline {
         stage('Deploy'){
             steps{
                 script{
-                    sh "docker run -p 3000:3000 ${DOCKER_USER_NAME}/${DOCKER_IMAGE_NAME}:${VERSION_NUMBER} ."
+                    sh "docker run -dp 3000:3000 ${DOCKER_USER_NAME}/${DOCKER_IMAGE_NAME}:${VERSION_NUMBER}"
                 }
             }
+        }
+    }
+    post {
+        success {
+            // Các bước sau khi build thành công
+            echo 'Build and push Docker image successfully.'
+        }
+        failure {
+            // Các bước sau khi build thất bại
+            echo 'Build and push Docker image failed.'
         }
     }
 }
