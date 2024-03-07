@@ -3,10 +3,10 @@ const app = express();
 
 app.get('/', (req, res) => { 
     res.json({
-        msg: "Hello, world 1.0.4"
+        msg: "Hello, world 1.0.5"
     })
 })
 
 app.listen(3000, () => {
-    console.log('Server is running on port 3000 phiên bản 1.0.1');  
+    console.log('Server is running on port 3000 phiên bản 1.0.5');  
 })
