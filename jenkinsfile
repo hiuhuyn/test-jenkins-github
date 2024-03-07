@@ -51,10 +51,10 @@ pipeline {
                         sh "docker image prune -af"
                     }
                 }
-                post {
-                    always {
-                        jiraSendBuildInfo site: 'hiuhuyn.atlassian.net'
-                    }
+            }
+            post {
+                always {
+                    jiraSendBuildInfo site: 'hiuhuyn.atlassian.net'
                 }
             }
         }
