@@ -56,7 +56,6 @@ pipeline {
                         jiraSendBuildInfo site: 'hiuhuyn.atlassian.net'
                     }
                 }
-             }
             }
         }
         stage('Deploy'){
