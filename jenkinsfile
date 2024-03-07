@@ -6,6 +6,7 @@ pipeline {
         GITHUB_REPO_URL = 'https://github.com/hiuhuyn/test-jenkins-github.git'
         DOCKER_USER_NAME = 'hiuhuyn'
         VERSION_NUMBER = '1.0.${BUILD_NUMBER}'
+        CREDENTIALS_ID = "acc-docker-hub"
     }
 
     stages {
@@ -43,7 +44,7 @@ pipeline {
                     script {
                         sh "docker build -t ${DOCKER_IMAGE_NAME}:${VERSION_NUMBER} ." 
                         sh "docker tag ${DOCKER_IMAGE_NAME}:${VERSION_NUMBER} ${DOCKER_USER_NAME}/${DOCKER_IMAGE_NAME}:${VERSION_NUMBER}"
-                        withCredentials([usernamePassword(credentialsId: 'my-docker-hub', usernameVariable: 'docker_user', passwordVariable: 'docker_pass')]) {
+                        withCredentials([usernamePassword(credentialsId: CREDENTIALS_ID, usernameVariable: 'docker_user', passwordVariable: 'docker_pass')]) {
                             sh "docker login -u '${docker_user}' -p '${docker_pass}'"
                         }
                         sh "docker push ${DOCKER_USER_NAME}/${DOCKER_IMAGE_NAME}:${VERSION_NUMBER}"
